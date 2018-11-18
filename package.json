@@ -9,6 +9,7 @@
   "author": "Zvonimir",
   "license": "MIT",
   "dependencies": {
+    "mysql": "^2.16.0",
     "node-telegram-bot-api": "^0.30.0"
   }
 }

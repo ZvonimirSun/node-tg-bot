@@ -5,7 +5,7 @@
 ## TOC
 
 - [TOC](#toc)
-  - [Exist Function](#exist functions)
+  - [Exist Function](#exist-functions)
   - [TODO](#todo)
 
 ## Exist Functions

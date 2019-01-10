@@ -1,7 +1,7 @@
 {
   "name": "szy_private_bot",
   "version": "1.0.0",
-  "description": "",
+  "description": "szy的个人辅助bot",
   "main": "app.js",
   "scripts": {
     "start": "node app.js"

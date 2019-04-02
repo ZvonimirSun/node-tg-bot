@@ -9,18 +9,22 @@ const bot = new TelegramBot(token, { polling: true });
 const admin = 411122704;
 
 bot.on('message', (msg) => {
-  if(msg.chat.id == admin) {
+  if (msg.chat.id == admin) {
     request(
       {
-        url: 'https://asf.tools.iszy.cc/Api/Command/' + msg.text,
+        url: 'http://asf:1242/Api/Command/' + msg.text.replace(/\//, ""),
         method: 'POST',
         headers: {
           'accept': 'application/json',
           'Authentication': 'szy1219/*-+'
         }
       },
-      function(error, response, body) {
-        bot.sendMessage(msg.chat.id, JSON.parse(body).Result);
+      function (error, response, body) {
+        try {
+          bot.sendMessage(msg.chat.id, JSON.parse(body).Result);
+        } catch (e) {
+          bot.sendMessage(msg.chat.id, "Sorry, something goes wrong\n" + body);
+        }
       }
     );
   }

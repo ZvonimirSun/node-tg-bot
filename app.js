@@ -21,7 +21,11 @@ bot.on('message', (msg) => {
       },
       function (error, response, body) {
         try {
-          bot.sendMessage(msg.chat.id, JSON.parse(body).Result);
+          bot.sendMessage(msg.chat.id, JSON.parse(body).Result, {
+            "reply_markup": {
+              "keyboard": [["status", "help"], ["pause", "resume"], ["2fa", "2faok", "2fano"]]
+            }
+          });
         } catch (e) {
           bot.sendMessage(msg.chat.id, "Sorry, something goes wrong\n" + body);
         }

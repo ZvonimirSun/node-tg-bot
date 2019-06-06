@@ -31,7 +31,7 @@ app.listen(port, () => {
   console.log(`Express server is listening on ${port}`);
 });
 
-bot.onText(/\start/, msg => {
+bot.onText(/\/start/, msg => {
   if (msg.chat.id == admin) {
     bot.sendMessage(msg.chat.id, "Welcome!", {
       parse_mode: "Markdown",

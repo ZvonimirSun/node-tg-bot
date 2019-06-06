@@ -1,26 +1,32 @@
+const TOKEN =
+  process.env.TELEGRAM_TOKEN || "685605257:AAE1skdREiJ-HdL6YGvJwisx5WDntpTgFmQ";
+const url = "https://tgbot.tools.iszy.cc";
+const port = process.env.PORT || 3000;
+const admin = 411122704;
+
 const TelegramBot = require("node-telegram-bot-api");
 const express = require("express");
 const bodyParser = require("body-parser");
 const request = require("request");
 
-// Telegram Bot
-const token = "685605257:AAE1skdREiJ-HdL6YGvJwisx5WDntpTgFmQ";
-const url = "https://tgbot.tools.iszy.cc";
-const port = 3000;
-const admin = 411122704;
+// No need to pass any parameters as we will handle the updates with Express
+const bot = new TelegramBot(TOKEN);
 
-const bot = new TelegramBot(token);
+// This informs the Telegram servers of the new webhook.
 bot.setWebHook(`${url}/bot${token}`);
+
 const app = express();
+
+// parse the updates to JSON
 app.use(bodyParser.json());
 
-app.get("/", (req, res) => res.send("Hello World!"));
-
+// We are receiving updates at the route below!
 app.post(`/bot${token}`, (req, res) => {
   bot.processUpdate(req.body);
   res.sendStatus(200);
 });
 
+// Start Express Server
 app.listen(port, () => {
   console.log(`Express server is listening on ${port}`);
 });

@@ -1,8 +1,4 @@
-"use strict";
-
-process.env.NTBA_FIX_319 = 1;
-
-import TelegramBot from "node-telegram-bot-api";
+const TelegramBot = require("node-telegram-bot-api");
 const express = require("express");
 const bodyParser = require("body-parser");
 const request = require("request");

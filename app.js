@@ -42,7 +42,7 @@ bot.onText(/\/start/, msg => {
   }
 });
 
-bot.onText(/\/asf/, msg => {
+bot.onText(/asf/, msg => {
   if (msg.chat.id == admin) {
     bot
       .sendMessage(msg.chat.id, "What do you want?", {

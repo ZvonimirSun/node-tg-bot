@@ -10,7 +10,7 @@ const request = require("request");
 // Telegram Bot
 const token = "685605257:AAE1skdREiJ-HdL6YGvJwisx5WDntpTgFmQ";
 const url = "https://tgbot.tools.iszy.cc";
-const app = 3000;
+const port = 3000;
 const admin = 411122704;
 
 const bot = new TelegramBot(token);

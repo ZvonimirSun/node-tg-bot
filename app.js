@@ -31,33 +31,72 @@ app.listen(port, () => {
   console.log(`Express server is listening on ${port}`);
 });
 
-bot.on("message", msg => {
+bot.onText(/\start/, msg => {
   if (msg.chat.id == admin) {
-    request(
-      {
-        url: "http://asf:1242/Api/Command/" + msg.text.replace(/\//, ""),
-        method: "POST",
-        headers: {
-          accept: "application/json",
-          Authentication: "szy1219/*-+"
-        }
-      },
-      function(error, response, body) {
-        try {
-          bot.sendMessage(msg.chat.id, JSON.parse(body).Result, {
-            parse_mode: "Markdown",
-            reply_markup: {
-              keyboard: [
-                ["status", "help"],
-                ["pause", "resume"],
-                ["2fa", "2faok", "2fano"]
-              ]
-            }
-          });
-        } catch (e) {
-          bot.sendMessage(msg.chat.id, "Sorry, something goes wrong\n" + body);
-        }
+    bot.sendMessage(msg.chat.id, "Welcome!", {
+      parse_mode: "Markdown",
+      reply_markup: {
+        keyboard: [["asf", "hentai"]]
       }
-    );
+    });
+  }
+});
+
+bot.onText(/\/asf/, msg => {
+  if (msg.chat.id == admin) {
+    bot
+      .sendMessage(msg.chat.id, "What do you want?", {
+        parse_mode: "Markdown",
+        reply_markup: {
+          keyboard: [
+            ["status", "help"],
+            ["pause", "resume"],
+            ["2fa", "2faok", "2fano"]
+          ],
+          force_reply: true
+        }
+      })
+      .then(payload => {
+        const replyListenerId = bot.onReplyToMessage(
+          payload.chat.id,
+          payload.message_id,
+          msg => {
+            request(
+              {
+                url:
+                  "http://asf:1242/Api/Command/" + msg.text.replace(/\//, ""),
+                method: "POST",
+                headers: {
+                  accept: "application/json",
+                  Authentication: "szy1219/*-+"
+                }
+              },
+              function(error, response, body) {
+                try {
+                  bot.sendMessage(msg.chat.id, JSON.parse(body).Result, {
+                    parse_mode: "Markdown",
+                    reply_markup: {
+                      keyboard: [["asf", "hentai"]]
+                    }
+                  });
+                  bot.removeReplyListener(replyListenerId);
+                } catch (e) {
+                  bot.sendMessage(
+                    msg.chat.id,
+                    "Sorry, something goes wrong\n" + body,
+                    {
+                      parse_mode: "Markdown",
+                      reply_markup: {
+                        keyboard: [["asf", "hentai"]]
+                      }
+                    }
+                  );
+                  bot.removeReplyListener(replyListenerId);
+                }
+              }
+            );
+          }
+        );
+      });
   }
 });

@@ -57,7 +57,7 @@ bot.onText(/asf/, msg => {
         }
       })
       .then(payload => {
-        var a = bot.on("message", msg => {
+        bot.once("message", msg => {
           request(
             {
               url: "http://asf:1242/Api/Command/" + msg.text.replace(/\//, ""),
@@ -75,7 +75,6 @@ bot.onText(/asf/, msg => {
                     keyboard: [["asf", "hentai"]]
                   }
                 });
-                a.removeListener();
               } catch (e) {
                 bot.sendMessage(
                   msg.chat.id,
@@ -87,7 +86,6 @@ bot.onText(/asf/, msg => {
                     }
                   }
                 );
-                a.removeListener();
               }
             }
           );

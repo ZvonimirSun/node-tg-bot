@@ -13,7 +13,7 @@ const request = require("request");
 const bot = new TelegramBot(TOKEN);
 
 // This informs the Telegram servers of the new webhook.
-bot.setWebHook(`${url}/bot${token}`);
+bot.setWebHook(`${url}/bot${TOKEN}`);
 
 const app = express();
 
@@ -21,7 +21,7 @@ const app = express();
 app.use(bodyParser.json());
 
 // We are receiving updates at the route below!
-app.post(`/bot${token}`, (req, res) => {
+app.post(`/bot${TOKEN}`, (req, res) => {
   bot.processUpdate(req.body);
   res.sendStatus(200);
 });

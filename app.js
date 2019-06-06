@@ -57,46 +57,39 @@ bot.onText(/asf/, msg => {
         }
       })
       .then(payload => {
-        const replyListenerId = bot.onReplyToMessage(
-          payload.chat.id,
-          payload.message_id,
-          msg => {
-            request(
-              {
-                url:
-                  "http://asf:1242/Api/Command/" + msg.text.replace(/\//, ""),
-                method: "POST",
-                headers: {
-                  accept: "application/json",
-                  Authentication: "szy1219/*-+"
-                }
-              },
-              function(error, response, body) {
-                try {
-                  bot.sendMessage(msg.chat.id, JSON.parse(body).Result, {
+        bot.on("message", msg => {
+          request(
+            {
+              url: "http://asf:1242/Api/Command/" + msg.text.replace(/\//, ""),
+              method: "POST",
+              headers: {
+                accept: "application/json",
+                Authentication: "szy1219/*-+"
+              }
+            },
+            function(error, response, body) {
+              try {
+                bot.sendMessage(msg.chat.id, JSON.parse(body).Result, {
+                  parse_mode: "Markdown",
+                  reply_markup: {
+                    keyboard: [["asf", "hentai"]]
+                  }
+                });
+              } catch (e) {
+                bot.sendMessage(
+                  msg.chat.id,
+                  "Sorry, something goes wrong\n" + body,
+                  {
                     parse_mode: "Markdown",
                     reply_markup: {
                       keyboard: [["asf", "hentai"]]
                     }
-                  });
-                  bot.removeReplyListener(replyListenerId);
-                } catch (e) {
-                  bot.sendMessage(
-                    msg.chat.id,
-                    "Sorry, something goes wrong\n" + body,
-                    {
-                      parse_mode: "Markdown",
-                      reply_markup: {
-                        keyboard: [["asf", "hentai"]]
-                      }
-                    }
-                  );
-                  bot.removeReplyListener(replyListenerId);
-                }
+                  }
+                );
               }
-            );
-          }
-        );
+            }
+          );
+        });
       });
   }
 });

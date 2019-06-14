@@ -92,53 +92,35 @@ bot.onText(/asf/, msg => {
 
 bot.onText(/hentai/, msg => {
   if (msg.chat.id == admin) {
-    bot
-      .sendMessage(msg.chat.id, "Are you a hetai?", {
-        reply_markup: {
-          keyboard: [["prpr"]],
-          force_reply: true
-        }
-      })
-      .then(() => {
-        bot.once("message", msg => {
-          if (msg.text == "prpr") {
-            request(
-              "https://konachan.com/post.json?tags=ass&limit=50",
-              function(error, response, body) {
-                if (!error && response.statusCode == 200) {
-                  const result = JSON.parse(body) || [];
-                  const index = parseInt(Math.random() * result.length);
-                  bot
-                    .sendPhoto(msg.chat.id, result[index].file_url, {
-                      caption: "手冲一时爽，一直手冲一直爽",
-                      reply_markup: {
-                        keyboard: [["asf", "hentai"]]
-                      }
-                    })
-                    .catch(err => {
-                      bot.sendMessage(msg.chat.id, "手冲失败", {
-                        reply_markup: {
-                          keyboard: [["asf", "hentai"]]
-                        }
-                      });
-                    });
-                } else {
-                  bot.sendMessage(msg.chat.id, "手冲失败", {
-                    reply_markup: {
-                      keyboard: [["asf", "hentai"]]
-                    }
-                  });
-                }
-              }
-            );
-          } else {
-            bot.sendMessage(msg.chat.id, "返回", {
+    request("https://konachan.com/post.json?tags=ass&limit=50", function(
+      error,
+      response,
+      body
+    ) {
+      if (!error && response.statusCode == 200) {
+        const result = JSON.parse(body) || [];
+        const index = parseInt(Math.random() * result.length);
+        bot
+          .sendPhoto(msg.chat.id, result[index].file_url, {
+            caption: "手冲一时爽，一直手冲一直爽",
+            reply_markup: {
+              keyboard: [["asf", "hentai"]]
+            }
+          })
+          .catch(err => {
+            bot.sendMessage(msg.chat.id, "手冲失败", {
               reply_markup: {
                 keyboard: [["asf", "hentai"]]
               }
             });
+          });
+      } else {
+        bot.sendMessage(msg.chat.id, "手冲失败", {
+          reply_markup: {
+            keyboard: [["asf", "hentai"]]
           }
         });
-      });
+      }
+    });
   }
 });

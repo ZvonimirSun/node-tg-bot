@@ -58,24 +58,40 @@ bot.onText(/asf/, msg => {
         bot.once("message", msg => {
           request(
             {
-              url: "http://asf:1242/Api/Command/" + msg.text.replace(/\//, ""),
+              url: "http://asf:1242/Api/Command",
               method: "POST",
               headers: {
                 accept: "application/json",
-                Authentication: "szy1219/*-+"
-              }
+                Authentication: "szy1219/*-+",
+                "content-type": "application/json"
+              },
+              body: JSON.stringify({
+                Command: msg.text.replace(/\//, "")
+              })
             },
             function(error, response, body) {
-              try {
-                bot.sendMessage(msg.chat.id, JSON.parse(body).Result, {
-                  reply_markup: {
-                    keyboard: [["asf", "hentai"]]
-                  }
-                });
-              } catch (e) {
+              if (!error) {
+                try {
+                  bot.sendMessage(msg.chat.id, JSON.parse(body).Result, {
+                    reply_markup: {
+                      keyboard: [["asf", "hentai"]]
+                    }
+                  });
+                } catch (e) {
+                  bot.sendMessage(
+                    msg.chat.id,
+                    "Sorry, something goes wrong\n" + body,
+                    {
+                      reply_markup: {
+                        keyboard: [["asf", "hentai"]]
+                      }
+                    }
+                  );
+                }
+              } else {
                 bot.sendMessage(
                   msg.chat.id,
-                  "Sorry, something goes wrong\n" + body,
+                  "Sorry, something goes wrong\n" + error,
                   {
                     reply_markup: {
                       keyboard: [["asf", "hentai"]]

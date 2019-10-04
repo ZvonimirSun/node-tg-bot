@@ -1,142 +1,200 @@
-const TOKEN =
-  process.env.TELEGRAM_TOKEN || "685605257:AAE1skdREiJ-HdL6YGvJwisx5WDntpTgFmQ";
-const url = "https://tgbot.tools.iszy.cc";
+const token = process.env.TELEGRAM_TOKEN;
+const admin = process.env.ADMIN_ID;
+const ipc_addr = process.env.IPC_ADDR;
+const ipc_pass = process.env.IPC_PASS || "";
+const url = process.env.URL;
 const port = process.env.PORT || 3000;
-const admin = 411122704;
+const hentai = process.env.HENTAI || false;
 
-const TelegramBot = require("node-telegram-bot-api");
-const express = require("express");
-const bodyParser = require("body-parser");
-const request = require("request");
+if (token !== undefined && admin !== undefined && ipc_addr !== undefined) {
+  // No need to pass any parameters as we will handle the updates with Express
 
-// No need to pass any parameters as we will handle the updates with Express
-const bot = new TelegramBot(TOKEN);
+  const TelegramBot = require("node-telegram-bot-api");
 
-// This informs the Telegram servers of the new webhook.
-bot.setWebHook(`${url}/bot${TOKEN}`);
+  let bot;
 
-const app = express();
+  const request = require("request");
 
-// parse the updates to JSON
-app.use(bodyParser.json());
+  if (url !== undefined) {
+    const express = require("express");
+    const bodyParser = require("body-parser");
 
-// We are receiving updates at the route below!
-app.post(`/bot${TOKEN}`, (req, res) => {
-  bot.processUpdate(req.body);
-  res.sendStatus(200);
-});
+    bot = new TelegramBot(token);
 
-// Start Express Server
-app.listen(port, () => {
-  console.log(`Express server is listening on ${port}`);
-});
+    // This informs the Telegram servers of the new webhook.
+    bot.setWebHook(`${url}/bot${token}`);
 
-bot.onText(/\/start/, msg => {
-  if (msg.chat.id == admin) {
-    bot.sendMessage(msg.chat.id, "Welcome!", {
-      reply_markup: {
-        keyboard: [["asf", "hentai"]]
-      }
+    const app = express();
+
+    // parse the updates to JSON
+    app.use(bodyParser.json());
+
+    // We are receiving updates at the route below!
+    app.post(`/bot${token}`, (req, res) => {
+      bot.processUpdate(req.body);
+      res.sendStatus(200);
     });
-  }
-});
 
-bot.onText(/asf/, msg => {
-  if (msg.chat.id == admin) {
-    bot
-      .sendMessage(msg.chat.id, "What do you want?", {
-        reply_markup: {
-          keyboard: [
-            ["status", "help"],
-            ["pause", "resume"],
-            ["2fa", "2faok", "2fano"]
-          ],
-          force_reply: true
-        }
-      })
-      .then(() => {
-        bot.once("message", msg => {
-          request(
-            {
-              url: "http://asf:1242/Api/Command",
-              method: "POST",
-              headers: {
-                accept: "application/json",
-                Authentication: "szy1219/*-+",
-                "content-type": "application/json"
+    // Start Express Server
+    app.listen(port, () => {
+      console.log(`Express server is listening on ${port}`);
+    });
+  } else {
+    bot = new TelegramBot(token, { polling: true });
+  }
+
+  bot.onText(/\/start/, msg => {
+    if (msg.chat.id == admin) {
+      if (hentai) {
+        bot.sendMessage(msg.chat.id, "Welcome!", {
+          reply_markup: {
+            keyboard: [["asf", "hentai"]]
+          }
+        });
+      } else {
+        bot.sendMessage(msg.chat.id, "Welcome!", {
+          reply_markup: {
+            keyboard: [["asf"]]
+          }
+        });
+      }
+    }
+  });
+
+  bot.onText(/asf/, msg => {
+    if (msg.chat.id == admin) {
+      bot
+        .sendMessage(msg.chat.id, "What do you want?", {
+          reply_markup: {
+            keyboard: [
+              ["status", "help"],
+              ["pause", "resume"],
+              ["2fa", "2faok", "2fano"]
+            ],
+            force_reply: true
+          }
+        })
+        .then(() => {
+          bot.once("message", msg => {
+            request(
+              {
+                url: ipc_addr + "/Api/Command",
+                method: "POST",
+                headers: {
+                  accept: "application/json",
+                  Authentication: ipc_pass,
+                  "content-type": "application/json"
+                },
+                body: JSON.stringify({
+                  Command: msg.text.replace(/\//, "")
+                })
               },
-              body: JSON.stringify({
-                Command: msg.text.replace(/\//, "")
-              })
-            },
-            function(error, response, body) {
-              if (!error) {
-                try {
-                  bot.sendMessage(msg.chat.id, JSON.parse(body).Result, {
-                    reply_markup: {
-                      keyboard: [["asf", "hentai"]]
+              function(error, response, body) {
+                if (!error) {
+                  try {
+                    if (hentai) {
+                      bot.sendMessage(msg.chat.id, JSON.parse(body).Result, {
+                        reply_markup: {
+                          keyboard: [["asf", "hentai"]]
+                        }
+                      });
+                    } else {
+                      bot.sendMessage(msg.chat.id, JSON.parse(body).Result, {
+                        reply_markup: {
+                          keyboard: [["asf"]]
+                        }
+                      });
                     }
-                  });
-                } catch (e) {
-                  bot.sendMessage(
-                    msg.chat.id,
-                    "Sorry, something goes wrong\n" + body,
-                    {
-                      reply_markup: {
-                        keyboard: [["asf", "hentai"]]
-                      }
-                    }
-                  );
-                }
-              } else {
-                bot.sendMessage(
-                  msg.chat.id,
-                  "Sorry, something goes wrong\n" + error,
-                  {
-                    reply_markup: {
-                      keyboard: [["asf", "hentai"]]
+                  } catch (e) {
+                    if (hentai) {
+                      bot.sendMessage(
+                        msg.chat.id,
+                        "Sorry, something goes wrong\n" + body,
+                        {
+                          reply_markup: {
+                            keyboard: [["asf", "hentai"]]
+                          }
+                        }
+                      );
+                    } else {
+                      bot.sendMessage(
+                        msg.chat.id,
+                        "Sorry, something goes wrong\n" + body,
+                        {
+                          reply_markup: {
+                            keyboard: [["asf"]]
+                          }
+                        }
+                      );
                     }
                   }
-                );
+                } else {
+                  if (hentai) {
+                    bot.sendMessage(
+                      msg.chat.id,
+                      "Sorry, something goes wrong\n" + error,
+                      {
+                        reply_markup: {
+                          keyboard: [["asf", "hentai"]]
+                        }
+                      }
+                    );
+                  } else {
+                    bot.sendMessage(
+                      msg.chat.id,
+                      "Sorry, something goes wrong\n" + error,
+                      {
+                        reply_markup: {
+                          keyboard: [["asf"]]
+                        }
+                      }
+                    );
+                  }
+                }
               }
-            }
-          );
+            );
+          });
         });
-      });
-  }
-});
+    }
+  });
 
-bot.onText(/hentai/, msg => {
-  if (msg.chat.id == admin) {
-    request("https://konachan.com/post.json?tags=ass&limit=50", function(
-      error,
-      response,
-      body
-    ) {
-      if (!error && response.statusCode == 200) {
-        const result = JSON.parse(body) || [];
-        const index = parseInt(Math.random() * result.length);
-        bot
-          .sendPhoto(msg.chat.id, result[index].file_url, {
-            caption: "手冲一时爽，一直手冲一直爽",
-            reply_markup: {
-              keyboard: [["asf", "hentai"]]
-            }
-          })
-          .catch(err => {
+  if (hentai) {
+    bot.onText(/hentai/, msg => {
+      if (msg.chat.id == admin) {
+        request("https://konachan.com/post.json?tags=ass&limit=50", function(
+          error,
+          response,
+          body
+        ) {
+          if (!error && response.statusCode == 200) {
+            const result = JSON.parse(body) || [];
+            const index = parseInt(Math.random() * result.length);
+            bot
+              .sendPhoto(msg.chat.id, result[index].file_url, {
+                caption: "手冲一时爽，一直手冲一直爽",
+                reply_markup: {
+                  keyboard: [["asf", "hentai"]]
+                }
+              })
+              .catch(err => {
+                bot.sendMessage(msg.chat.id, "手冲失败", {
+                  reply_markup: {
+                    keyboard: [["asf", "hentai"]]
+                  }
+                });
+              });
+          } else {
             bot.sendMessage(msg.chat.id, "手冲失败", {
               reply_markup: {
                 keyboard: [["asf", "hentai"]]
               }
             });
-          });
-      } else {
-        bot.sendMessage(msg.chat.id, "手冲失败", {
-          reply_markup: {
-            keyboard: [["asf", "hentai"]]
           }
         });
       }
     });
   }
-});
+} else {
+  console.log("TELEGRAM_TOKEN, ADMIN_ID and IPC_ADDR is required.");
+  process.exit(1);
+}

@@ -50,11 +50,11 @@ if (token !== undefined && admin !== undefined && ipc_addr !== undefined) {
   const keywords = [
     "/start",
     "/hentai_on",
-    "hentai_on",
     "/hentai_off",
-    "hentai_off",
     "/hentai",
-    "hentai"
+    "hentai",
+    "/hentai_tag",
+    "/hentai_limit"
   ];
 
   // 初始
@@ -138,7 +138,7 @@ if (token !== undefined && admin !== undefined && ipc_addr !== undefined) {
 
   bot.on("message", msg => {
     // asf功能
-    if (keywords.indexOf(msg.text) === -1) {
+    if (keywords.indexOf(msg.text.split(" ")[0]) === -1) {
       request(
         {
           url: ipc_addr + "/Api/Command",
@@ -197,7 +197,7 @@ if (token !== undefined && admin !== undefined && ipc_addr !== undefined) {
         }
       );
     } else {
-      if (msg.text.replace(/\//, "") === "hentai") {
+      if (msg.text.split(" ")[0].replace(/\//, "") === "hentai") {
         if (hentai) {
           request(
             "https://konachan.com/post.json?tags=" +
@@ -254,6 +254,38 @@ if (token !== undefined && admin !== undefined && ipc_addr !== undefined) {
             }
           });
         }
+      }
+      if (msg.text.split(" ")[0].replace(/\//, "") === "hentai_limit") {
+        hentai_limit = msg.text.split(" ")[1];
+        bot.sendMessage(
+          msg.chat.id,
+          "Hentai_limit has been set to " + hentai_limit,
+          {
+            reply_markup: {
+              keyboard: [
+                ["status", "help"],
+                ["pause", "resume"],
+                ["2fa", "2faok", "2fano"]
+              ]
+            }
+          }
+        );
+      }
+      if (msg.text.split(" ")[0].replace(/\//, "") === "hentai_tag") {
+        hentai_tag = msg.text.split(" ")[1];
+        bot.sendMessage(
+          msg.chat.id,
+          "Hentai_tag has been set to " + hentai_tag,
+          {
+            reply_markup: {
+              keyboard: [
+                ["status", "help"],
+                ["pause", "resume"],
+                ["2fa", "2faok", "2fano"]
+              ]
+            }
+          }
+        );
       }
     }
   });

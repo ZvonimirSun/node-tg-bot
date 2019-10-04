@@ -1,7 +1,7 @@
 {
-  "name": "szy_private_bot",
+  "name": "node_asf_bot",
   "version": "1.0.0",
-  "description": "szy的个人辅助bot",
+  "description": "node asf bot",
   "main": "app.js",
   "scripts": {
     "start": "node app.js"

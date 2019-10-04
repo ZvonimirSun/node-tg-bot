@@ -4,9 +4,6 @@ const ipc_addr = process.env.IPC_ADDR;
 const ipc_pass = process.env.IPC_PASS || "";
 const url = process.env.URL;
 const port = process.env.PORT || 3000;
-let hentai = false;
-let hentai_limit = 150;
-let hentai_tag = "uncensored";
 
 // 判断变量状态是否满足正常运行条件
 if (token !== undefined && admin !== undefined && ipc_addr !== undefined) {
@@ -47,15 +44,7 @@ if (token !== undefined && admin !== undefined && ipc_addr !== undefined) {
     bot = new TelegramBot(token, { polling: true });
   }
 
-  const keywords = [
-    "/start",
-    "/hentai_on",
-    "/hentai_off",
-    "/hentai",
-    "hentai",
-    "/hentai_tag",
-    "/hentai_limit"
-  ];
+  const keywords = ["/start"];
 
   // 初始
   bot.onText(/\/start/, msg => {
@@ -69,70 +58,6 @@ if (token !== undefined && admin !== undefined && ipc_addr !== undefined) {
           ]
         }
       });
-    }
-  });
-
-  // 开启hentai功能
-  bot.onText(/\/hentai_on/, msg => {
-    if (msg.chat.id == admin) {
-      if (hentai) {
-        bot.sendMessage(
-          msg.chat.id,
-          "Heitai function has already been turned on.",
-          {
-            reply_markup: {
-              keyboard: [
-                ["status", "help"],
-                ["pause", "resume"],
-                ["2fa", "2faok", "2fano"]
-              ]
-            }
-          }
-        );
-      } else {
-        hentai = true;
-        bot.sendMessage(msg.chat.id, "Heitai function is turned on now.", {
-          reply_markup: {
-            keyboard: [
-              ["status", "help"],
-              ["pause", "resume"],
-              ["2fa", "2faok", "2fano"]
-            ]
-          }
-        });
-      }
-    }
-  });
-
-  // 关闭hentai功能
-  bot.onText(/\/hentai_off/, msg => {
-    if (msg.chat.id == admin) {
-      if (!hentai) {
-        bot.sendMessage(
-          msg.chat.id,
-          "Heitai function has already been turned off.",
-          {
-            reply_markup: {
-              keyboard: [
-                ["status", "help"],
-                ["pause", "resume"],
-                ["2fa", "2faok", "2fano"]
-              ]
-            }
-          }
-        );
-      } else {
-        hentai = false;
-        bot.sendMessage(msg.chat.id, "Heitai function is turned off now.", {
-          reply_markup: {
-            keyboard: [
-              ["status", "help"],
-              ["pause", "resume"],
-              ["2fa", "2faok", "2fano"]
-            ]
-          }
-        });
-      }
     }
   });
 
@@ -196,126 +121,9 @@ if (token !== undefined && admin !== undefined && ipc_addr !== undefined) {
           }
         }
       );
-    } else {
-      if (msg.text.split(" ")[0].replace(/\//, "") === "hentai") {
-        if (hentai) {
-          request(
-            "https://konachan.com/post.json?tags=" +
-              hentai_tag +
-              "&limit=" +
-              hentai_limit,
-            function(error, response, body) {
-              if (!error && response.statusCode == 200) {
-                const result = JSON.parse(body) || [];
-                const index = parseInt(Math.random() * result.length);
-                bot
-                  .sendPhoto(msg.chat.id, result[index].jpeg_url, {
-                    caption: "手冲一时爽，一直手冲一直爽",
-                    reply_markup: {
-                      keyboard: [
-                        ["status", "help"],
-                        ["pause", "resume"],
-                        ["2fa", "2faok", "2fano"]
-                      ]
-                    }
-                  })
-                  .catch(err => {
-                    bot.sendMessage(msg.chat.id, "手冲失败" + err, {
-                      reply_markup: {
-                        keyboard: [
-                          ["status", "help"],
-                          ["pause", "resume"],
-                          ["2fa", "2faok", "2fano"]
-                        ]
-                      }
-                    });
-                  });
-              } else {
-                bot.sendMessage(msg.chat.id, "手冲失败" + error, {
-                  reply_markup: {
-                    keyboard: [
-                      ["status", "help"],
-                      ["pause", "resume"],
-                      ["2fa", "2faok", "2fano"]
-                    ]
-                  }
-                });
-              }
-            }
-          );
-        } else {
-          bot.sendMessage(msg.chat.id, "Hentai function is not on.", {
-            reply_markup: {
-              keyboard: [
-                ["status", "help"],
-                ["pause", "resume"],
-                ["2fa", "2faok", "2fano"]
-              ]
-            }
-          });
-        }
-      }
-      if (msg.text.split(" ")[0].replace(/\//, "") === "hentai_limit") {
-        let limit = msg.text.split(" ")[1];
-        if (limit) {
-          hentai_limit = limit;
-          bot.sendMessage(
-            msg.chat.id,
-            "Hentai_limit has been set to " + hentai_limit,
-            {
-              reply_markup: {
-                keyboard: [
-                  ["status", "help"],
-                  ["pause", "resume"],
-                  ["2fa", "2faok", "2fano"]
-                ]
-              }
-            }
-          );
-        } else {
-          bot.sendMessage(msg.chat.id, "The limit param is invalid.", {
-            reply_markup: {
-              keyboard: [
-                ["status", "help"],
-                ["pause", "resume"],
-                ["2fa", "2faok", "2fano"]
-              ]
-            }
-          });
-        }
-      }
-      if (msg.text.split(" ")[0].replace(/\//, "") === "hentai_tag") {
-        let tag = msg.text.split(" ")[1];
-        if (tag) {
-          hentai_tag = tag;
-          bot.sendMessage(
-            msg.chat.id,
-            "Hentai_tag has been set to " + hentai_tag,
-            {
-              reply_markup: {
-                keyboard: [
-                  ["status", "help"],
-                  ["pause", "resume"],
-                  ["2fa", "2faok", "2fano"]
-                ]
-              }
-            }
-          );
-        } else {
-          bot.sendMessage(msg.chat.id, "The tag param is invalid.", {
-            reply_markup: {
-              keyboard: [
-                ["status", "help"],
-                ["pause", "resume"],
-                ["2fa", "2faok", "2fano"]
-              ]
-            }
-          });
-        }
-      }
     }
   });
 } else {
-  console.log("TELEGRAM_TOKEN, ADMIN_ID and IPC_ADDR is required.");
+  console.log("TELEGRAM_TOKEN, ADMIN_ID and IPC_ADDR are required.");
   process.exit(1);
 }

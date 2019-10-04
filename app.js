@@ -71,7 +71,7 @@ if (token !== undefined && admin !== undefined && ipc_addr !== undefined) {
   });
 
   // 开启hentai功能
-  bot.onText(/\/hetai_on/, msg => {
+  bot.onText(/\/hentai_on/, msg => {
     if (msg.chat.id == admin) {
       if (hentai) {
         bot.sendMessage(
@@ -103,7 +103,7 @@ if (token !== undefined && admin !== undefined && ipc_addr !== undefined) {
   });
 
   // 关闭hentai功能
-  bot.onText(/\/hetai_off/, msg => {
+  bot.onText(/\/hentai_off/, msg => {
     if (msg.chat.id == admin) {
       if (!hentai) {
         bot.sendMessage(

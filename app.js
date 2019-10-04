@@ -209,7 +209,7 @@ if (token !== undefined && admin !== undefined && ipc_addr !== undefined) {
                 const result = JSON.parse(body) || [];
                 const index = parseInt(Math.random() * result.length);
                 bot
-                  .sendPhoto(msg.chat.id, result[index].file_url, {
+                  .sendPhoto(msg.chat.id, result[index].jpeg_url, {
                     caption: "手冲一时爽，一直手冲一直爽",
                     reply_markup: {
                       keyboard: [
@@ -220,7 +220,7 @@ if (token !== undefined && admin !== undefined && ipc_addr !== undefined) {
                     }
                   })
                   .catch(err => {
-                    bot.sendMessage(msg.chat.id, "手冲失败", {
+                    bot.sendMessage(msg.chat.id, "手冲失败" + err, {
                       reply_markup: {
                         keyboard: [
                           ["status", "help"],
@@ -231,7 +231,7 @@ if (token !== undefined && admin !== undefined && ipc_addr !== undefined) {
                     });
                   });
               } else {
-                bot.sendMessage(msg.chat.id, "手冲失败", {
+                bot.sendMessage(msg.chat.id, "手冲失败" + error, {
                   reply_markup: {
                     keyboard: [
                       ["status", "help"],
@@ -256,11 +256,24 @@ if (token !== undefined && admin !== undefined && ipc_addr !== undefined) {
         }
       }
       if (msg.text.split(" ")[0].replace(/\//, "") === "hentai_limit") {
-        hentai_limit = msg.text.split(" ")[1];
-        bot.sendMessage(
-          msg.chat.id,
-          "Hentai_limit has been set to " + hentai_limit,
-          {
+        let limit = msg.text.split(" ")[1];
+        if (limit) {
+          hentai_limit = limit;
+          bot.sendMessage(
+            msg.chat.id,
+            "Hentai_limit has been set to " + hentai_limit,
+            {
+              reply_markup: {
+                keyboard: [
+                  ["status", "help"],
+                  ["pause", "resume"],
+                  ["2fa", "2faok", "2fano"]
+                ]
+              }
+            }
+          );
+        } else {
+          bot.sendMessage(msg.chat.id, "The limit param is invalid.", {
             reply_markup: {
               keyboard: [
                 ["status", "help"],
@@ -268,15 +281,28 @@ if (token !== undefined && admin !== undefined && ipc_addr !== undefined) {
                 ["2fa", "2faok", "2fano"]
               ]
             }
-          }
-        );
+          });
+        }
       }
       if (msg.text.split(" ")[0].replace(/\//, "") === "hentai_tag") {
-        hentai_tag = msg.text.split(" ")[1];
-        bot.sendMessage(
-          msg.chat.id,
-          "Hentai_tag has been set to " + hentai_tag,
-          {
+        let tag = msg.text.split(" ")[1];
+        if (tag) {
+          hentai_tag = tag;
+          bot.sendMessage(
+            msg.chat.id,
+            "Hentai_tag has been set to " + hentai_tag,
+            {
+              reply_markup: {
+                keyboard: [
+                  ["status", "help"],
+                  ["pause", "resume"],
+                  ["2fa", "2faok", "2fano"]
+                ]
+              }
+            }
+          );
+        } else {
+          bot.sendMessage(msg.chat.id, "The tag param is invalid.", {
             reply_markup: {
               keyboard: [
                 ["status", "help"],
@@ -284,8 +310,8 @@ if (token !== undefined && admin !== undefined && ipc_addr !== undefined) {
                 ["2fa", "2faok", "2fano"]
               ]
             }
-          }
-        );
+          });
+        }
       }
     }
   });

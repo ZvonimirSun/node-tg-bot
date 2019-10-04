@@ -80,7 +80,13 @@ if (token !== undefined && admin !== undefined && ipc_addr !== undefined) {
         function(error, response, body) {
           if (!error) {
             try {
-              bot.sendMessage(msg.chat.id, JSON.parse(body).Result, {
+              let result = JSON.parse(body).Result;
+              if (result.includes(": ")) {
+                let tmp = result.split(": ");
+                result = tmp[0] + ": `" + tmp[1] + "`";
+              }
+              bot.sendMessage(msg.chat.id, result, {
+                parse_mode: "Markdown",
                 reply_markup: {
                   keyboard: [
                     ["status", "help"],

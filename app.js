@@ -4,7 +4,9 @@ const ipc_addr = process.env.IPC_ADDR;
 const ipc_pass = process.env.IPC_PASS || "";
 const url = process.env.URL;
 const port = process.env.PORT || 3000;
-let hentai = process.env.HENTAI || false;
+let hentai = false;
+let hentai_limit = 150;
+let hentai_tag = "uncensored";
 
 // 判断变量状态是否满足正常运行条件
 if (token !== undefined && admin !== undefined && ipc_addr !== undefined) {
@@ -197,27 +199,18 @@ if (token !== undefined && admin !== undefined && ipc_addr !== undefined) {
     } else {
       if (msg.text.replace(/\//, "") === "hentai") {
         if (hentai) {
-          request("https://konachan.com/post.json?tags=ass&limit=50", function(
-            error,
-            response,
-            body
-          ) {
-            if (!error && response.statusCode == 200) {
-              const result = JSON.parse(body) || [];
-              const index = parseInt(Math.random() * result.length);
-              bot
-                .sendPhoto(msg.chat.id, result[index].file_url, {
-                  caption: "手冲一时爽，一直手冲一直爽",
-                  reply_markup: {
-                    keyboard: [
-                      ["status", "help"],
-                      ["pause", "resume"],
-                      ["2fa", "2faok", "2fano"]
-                    ]
-                  }
-                })
-                .catch(err => {
-                  bot.sendMessage(msg.chat.id, "手冲失败", {
+          request(
+            "https://konachan.com/post.json?tags=" +
+              hentai_tag +
+              "&limit=" +
+              hentai_limit,
+            function(error, response, body) {
+              if (!error && response.statusCode == 200) {
+                const result = JSON.parse(body) || [];
+                const index = parseInt(Math.random() * result.length);
+                bot
+                  .sendPhoto(msg.chat.id, result[index].file_url, {
+                    caption: "手冲一时爽，一直手冲一直爽",
                     reply_markup: {
                       keyboard: [
                         ["status", "help"],
@@ -225,20 +218,31 @@ if (token !== undefined && admin !== undefined && ipc_addr !== undefined) {
                         ["2fa", "2faok", "2fano"]
                       ]
                     }
+                  })
+                  .catch(err => {
+                    bot.sendMessage(msg.chat.id, "手冲失败", {
+                      reply_markup: {
+                        keyboard: [
+                          ["status", "help"],
+                          ["pause", "resume"],
+                          ["2fa", "2faok", "2fano"]
+                        ]
+                      }
+                    });
                   });
+              } else {
+                bot.sendMessage(msg.chat.id, "手冲失败", {
+                  reply_markup: {
+                    keyboard: [
+                      ["status", "help"],
+                      ["pause", "resume"],
+                      ["2fa", "2faok", "2fano"]
+                    ]
+                  }
                 });
-            } else {
-              bot.sendMessage(msg.chat.id, "手冲失败", {
-                reply_markup: {
-                  keyboard: [
-                    ["status", "help"],
-                    ["pause", "resume"],
-                    ["2fa", "2faok", "2fano"]
-                  ]
-                }
-              });
+              }
             }
-          });
+          );
         } else {
           bot.sendMessage(msg.chat.id, "Hentai function is not on.", {
             reply_markup: {

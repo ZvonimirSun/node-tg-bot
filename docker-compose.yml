@@ -6,8 +6,8 @@ services:
     image: zvonimirsun/asfbot:alpine
     container_name: asfbot
     restart: always
-    ports:
-      - 3000:3000
+    # ports:
+    #   - 3000:3000
     environment:
       - TELEGRAM_TOKEN=987654321:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
       - ADMIN_ID=123456789

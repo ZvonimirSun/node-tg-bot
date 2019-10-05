@@ -36,6 +36,10 @@ if (token !== undefined && admin !== undefined && ipc_addr !== undefined) {
       res.sendStatus(200);
     });
 
+    app.get("/", (req, res) => {
+      res.send("NODE ASF BOT.");
+    });
+
     // Start Express Server
     app.listen(port, () => {
       console.log(`Express server is listening on ${port}`);

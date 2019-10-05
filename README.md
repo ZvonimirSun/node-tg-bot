@@ -2,21 +2,24 @@
 
 使用 **[node-telegram-bot-api](https://github.com/yagop/node-telegram-bot-api)** 搭建，用于通过 Telegram 发送命令给 ASF (ArchiSteamFarm)。
 
-## 安装
+## 直接运行
+
+### 依赖
+
+- Node.js
+
+### 下载文件
 
 ```bash
 git clone https://github.com/ZvonimirSun/node-asf-bot.git
 cd node-asf-bot
-npm start
 ```
 
-## 配置
+### 修改配置
 
-### 修改环境变量(推荐)
+配置环境变量。
 
-方法一，使用环境变量。
-
-**必填配置：**
+**必需配置：**
 
 ```bash
 # The API token of your Telegram bot
@@ -38,22 +41,44 @@ export URL=https://asf.example.com
 export PORT=3000
 ```
 
-### 直接修改 app.js
+### 运行
 
-将等号后的内容替换为对应配置项。
-
-**必填配置：**
-
-```js
-const token = process.env.TELEGRAM_TOKEN;
-const admin = process.env.ADMIN_ID;
-const ipc_addr = process.env.IPC_ADDR;
-const ipc_pass = process.env.IPC_PASS || "";
+```bash
+npm start
 ```
 
-**可选配置：**
+## Docker
 
-```js
-const url = process.env.URL;
-const port = process.env.PORT || 3000;
+### 依赖
+
+- docker-ce
+- docker-compose
+
+### 下载文件
+
+```bash
+git clone https://github.com/ZvonimirSun/node-asf-bot.git
+cd node-asf-bot
+```
+
+### 修改配置
+
+修改`docker-compose.yml`文件配置环境变量。
+
+```yml
+environment:
+  - TELEGRAM_TOKEN=987654321:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+  - ADMIN_ID=123456789
+  - IPC_ADDR=http://127.0.0.1:1242
+  - IPC_PASS=password
+  # - URL=https://asfbot.example.com
+  # - PORT=3000
+```
+
+将对应配置项替换。
+
+### 运行
+
+```bash
+docker-compose up -d
 ```

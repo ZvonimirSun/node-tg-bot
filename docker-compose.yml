@@ -1,0 +1,17 @@
+version: "3"
+services:
+  # asf telegram bot
+  asfbot:
+    build: .
+    image: zvonimirsun/asfbot:alpine
+    container_name: asfbot
+    restart: always
+    ports:
+      - 3000:3000
+    environment:
+      - TELEGRAM_TOKEN=987654321:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+      - ADMIN_ID=123456789
+      - IPC_ADDR=http://127.0.0.1:1242
+      - IPC_PASS=password
+      # - URL=https://asfbot.example.com
+      # - PORT=3000

@@ -85,7 +85,7 @@ if (token !== undefined && admin !== undefined && ipc_addr !== undefined) {
           if (!error) {
             try {
               let result = JSON.parse(body).Result;
-              if (result.includes(": ")) {
+              if (result.includes("2FA")) {
                 let tmp = result.split(": ");
                 result = tmp[0] + ": `" + tmp[1] + "`";
               }

@@ -1,5 +1,5 @@
 {
-  "name": "node_asf_bot",
+  "name": "@zvonimirsun/node-asf-bot",
   "version": "0.0.1",
   "description": "node asf bot",
   "main": "app.js",

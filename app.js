@@ -7,11 +7,25 @@ const port = process.env.PORT || 3000;
 
 const TelegramBot = require("node-telegram-bot-api");
 const axios = require("axios");
+const fs = require("fs");
 
-// 判断变量状态是否满足正常运行条件
-if (token !== undefined && admin !== undefined && ipc_addr !== undefined) {
-  // No need to pass any parameters as we will handle the updates with Express
+if (!init()) {
+  process.exit(1);
+}
+service();
 
+function init() {
+  // 判断变量状态是否满足正常运行条件
+  if (token !== undefined && admin !== undefined && ipc_addr !== undefined) {
+    // No need to pass any parameters as we will handle the updates with Express
+    return true;
+  } else {
+    console.log("TELEGRAM_TOKEN, ADMIN_ID and IPC_ADDR are required.");
+    return false;
+  }
+}
+
+function service() {
   let bot;
 
   // 判断使用websocket还是polling方式监听
@@ -48,22 +62,26 @@ if (token !== undefined && admin !== undefined && ipc_addr !== undefined) {
   }
 
   let users = {};
+  readUsers(users);
 
   // 初始
   bot.onText(/\/start/, (msg) => {
     if (!Object.keys(users).includes(msg.chat.id.toString())) {
       users[msg.chat.id] = {};
+      writeUsers(users);
     }
     bot.sendMessage(msg.chat.id, "欢迎!");
   });
 
   bot.onText(/\/exit/, (msg) => {
     delete users[msg.chat.id];
+    writeUsers(users);
     bot.sendMessage(msg.chat.id, "再见!");
   });
 
   bot.onText(/\/close/, (msg) => {
     delete users[msg.chat.id].tool;
+    writeUsers(users);
     bot.sendMessage(msg.chat.id, "已关闭工具");
   });
 
@@ -71,6 +89,7 @@ if (token !== undefined && admin !== undefined && ipc_addr !== undefined) {
     if (Object.keys(users).includes(msg.chat.id.toString())) {
       if (msg.chat.id == admin) {
         users[msg.chat.id].tool = "asf";
+        writeUsers(users);
         bot.sendMessage(msg.chat.id, "已切换到ASF工具", {
           reply_markup: {
             keyboard: [
@@ -159,7 +178,23 @@ if (token !== undefined && admin !== undefined && ipc_addr !== undefined) {
       }
     }
   });
-} else {
-  console.log("TELEGRAM_TOKEN, ADMIN_ID and IPC_ADDR are required.");
-  process.exit(1);
+}
+
+function readUsers(users) {
+  fs.readFile("/usr/src/app/mock/user.json", (err, data) => {
+    if (err) {
+      users = {};
+    }
+    users = JSON.parse(data.toString());
+  });
+}
+
+function writeUsers(users) {
+  fs.writeFile("/usr/src/app/mock/user.json", JSON.stringify(users), function (
+    err
+  ) {
+    if (err) {
+      console.error(err);
+    }
+  });
 }

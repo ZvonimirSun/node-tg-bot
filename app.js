@@ -5,15 +5,14 @@ const ipc_pass = process.env.IPC_PASS || "";
 const url = process.env.URL;
 const port = process.env.PORT || 3000;
 
+const TelegramBot = require("node-telegram-bot-api");
+const axios = require("axios");
+
 // 判断变量状态是否满足正常运行条件
 if (token !== undefined && admin !== undefined && ipc_addr !== undefined) {
   // No need to pass any parameters as we will handle the updates with Express
 
-  const TelegramBot = require("node-telegram-bot-api");
-
   let bot;
-
-  const request = require("request");
 
   // 判断使用websocket还是polling方式监听
   if (url !== undefined) {
@@ -48,44 +47,71 @@ if (token !== undefined && admin !== undefined && ipc_addr !== undefined) {
     bot = new TelegramBot(token, { polling: true });
   }
 
-  const keywords = ["/start"];
+  let users = {};
 
   // 初始
-  bot.onText(/\/start/, msg => {
-    if (msg.chat.id == admin) {
-      bot.sendMessage(msg.chat.id, "Welcome!", {
-        reply_markup: {
-          keyboard: [
-            ["status", "help"],
-            ["pause", "resume"],
-            ["2fa", "2faok", "2fano"]
-          ]
-        }
-      });
+  bot.onText(/\/start/, (msg) => {
+    if (!Object.keys(users).includes(msg.chat.id.toString())) {
+      users[msg.chat.id] = {};
+    }
+    bot.sendMessage(msg.chat.id, "欢迎!");
+  });
+
+  bot.onText(/\/exit/, (msg) => {
+    delete users[msg.chat.id];
+    bot.sendMessage(msg.chat.id, "再见!");
+  });
+
+  bot.onText(/\/close/, (msg) => {
+    delete users[msg.chat.id].tool;
+    bot.sendMessage(msg.chat.id, "已关闭工具");
+  });
+
+  bot.onText(/\/asf/, (msg) => {
+    if (Object.keys(users).includes(msg.chat.id.toString())) {
+      if (msg.chat.id == admin) {
+        users[msg.chat.id].tool = "asf";
+        bot.sendMessage(msg.chat.id, "已切换到ASF工具", {
+          reply_markup: {
+            keyboard: [
+              ["status", "help"],
+              ["pause", "resume"],
+              ["2fa", "2faok", "2fano"],
+            ],
+          },
+        });
+      } else {
+        bot.sendMessage(msg.chat.id, "本功能暂不对外开放");
+      }
+    } else {
+      bot.sendMessage(msg.chat.id, "请先初始化");
     }
   });
 
-  bot.on("message", msg => {
-    // asf功能
-    if (keywords.indexOf(msg.text.split(" ")[0]) === -1) {
-      request(
-        {
-          url: ipc_addr + "/Api/Command",
-          method: "POST",
+  bot.on("message", (msg) => {
+    if (
+      msg.text.substr(0, 1) !== "/" &&
+      Object.keys(users).includes(msg.chat.id.toString())
+    ) {
+      if (users[msg.chat.id].tool === "asf") {
+        // asf功能
+        axios({
+          method: "post",
+          url: "/Api/Command",
+          baseURL: ipc_addr,
           headers: {
             accept: "application/json",
             Authentication: ipc_pass,
-            "content-type": "application/json"
+            "content-type": "application/json",
           },
-          body: JSON.stringify({
-            Command: msg.text.replace(/\//, "")
-          })
-        },
-        function(error, response, body) {
-          if (!error) {
-            try {
-              let result = JSON.parse(body).Result;
-              if (result.includes("2FA")) {
+          data: {
+            Command: msg.text.replace(/\//, ""),
+          },
+        }).then((res) => {
+          if (res.status >= 200 && res.status < 300) {
+            if (res.data.Success) {
+              let result = res.data.Result;
+              if (result.includes("2FA") || result.includes("两步验证")) {
                 let tmp = result.split(": ");
                 result = tmp[0] + ": `" + tmp[1] + "`";
               }
@@ -95,42 +121,42 @@ if (token !== undefined && admin !== undefined && ipc_addr !== undefined) {
                   keyboard: [
                     ["status", "help"],
                     ["pause", "resume"],
-                    ["2fa", "2faok", "2fano"]
-                  ]
-                }
+                    ["2fa", "2faok", "2fano"],
+                  ],
+                },
               });
-            } catch (e) {
+            } else {
               bot.sendMessage(
                 msg.chat.id,
-                "Sorry, something goes wrong\n" + e,
+                "Sorry, something goes wrong\n" + res.data.Message,
                 {
                   reply_markup: {
                     keyboard: [
                       ["status", "help"],
                       ["pause", "resume"],
-                      ["2fa", "2faok", "2fano"]
-                    ]
-                  }
+                      ["2fa", "2faok", "2fano"],
+                    ],
+                  },
                 }
               );
             }
           } else {
             bot.sendMessage(
               msg.chat.id,
-              "Sorry, something goes wrong\n" + error,
+              "Sorry, something goes wrong\n" + res.data,
               {
                 reply_markup: {
                   keyboard: [
                     ["status", "help"],
                     ["pause", "resume"],
-                    ["2fa", "2faok", "2fano"]
-                  ]
-                }
+                    ["2fa", "2faok", "2fano"],
+                  ],
+                },
               }
             );
           }
-        }
-      );
+        });
+      }
     }
   });
 } else {

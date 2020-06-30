@@ -76,13 +76,21 @@ function service() {
   bot.onText(/\/exit/, (msg) => {
     delete users[msg.chat.id];
     writeUsers(users);
-    bot.sendMessage(msg.chat.id, "再见!");
+    bot.sendMessage(msg.chat.id, "再见!", {
+      reply_markup: {
+        remove_keyboard: true,
+      },
+    });
   });
 
   bot.onText(/\/close/, (msg) => {
     delete users[msg.chat.id].tool;
     writeUsers(users);
-    bot.sendMessage(msg.chat.id, "已关闭工具");
+    bot.sendMessage(msg.chat.id, "已关闭工具", {
+      reply_markup: {
+        remove_keyboard: true,
+      },
+    });
   });
 
   bot.onText(/\/asf/, (msg) => {

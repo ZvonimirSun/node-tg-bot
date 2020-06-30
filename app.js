@@ -185,7 +185,12 @@ function readUsers(users) {
     if (err) {
       users = {};
     }
-    users = JSON.parse(data.toString());
+    if (data) {
+      users = JSON.parse(data.toString());
+    } else {
+      users = {};
+      writeUsers(users);
+    }
   });
 }
 

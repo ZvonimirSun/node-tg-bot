@@ -8,6 +8,7 @@ const port = process.env.PORT || 3000;
 const TelegramBot = require("node-telegram-bot-api");
 const axios = require("axios");
 const fs = require("fs");
+let users = {};
 
 if (!init()) {
   process.exit(1);
@@ -61,8 +62,7 @@ function service() {
     bot = new TelegramBot(token, { polling: true });
   }
 
-  let users = {};
-  readUsers(users);
+  readUsers();
 
   // 初始
   bot.onText(/\/start/, (msg) => {
@@ -180,7 +180,7 @@ function service() {
   });
 }
 
-function readUsers(users) {
+function readUsers() {
   fs.readFile("/usr/src/app/mock/user.json", (err, data) => {
     if (err) {
       users = {};

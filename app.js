@@ -1,9 +1,13 @@
 const token = process.env.TELEGRAM_TOKEN;
 const admin = process.env.ADMIN_ID;
+const port = process.env.PORT || 3000;
+const url = process.env.URL;
+
 const ipc_addr = process.env.IPC_ADDR;
 const ipc_pass = process.env.IPC_PASS || "";
-const url = process.env.URL;
-const port = process.env.PORT || 3000;
+
+const vadmin_username = process.env.VADMIN_USERNAME;
+const vadmin_password = process.env.VADMIN_PASSWORD;
 
 const TelegramBot = require("node-telegram-bot-api");
 const axios = require("axios");
@@ -18,11 +22,11 @@ service();
 
 function init() {
   // 判断变量状态是否满足正常运行条件
-  if (token !== undefined && admin !== undefined && ipc_addr !== undefined) {
+  if (token && admin) {
     // No need to pass any parameters as we will handle the updates with Express
     return true;
   } else {
-    console.log("TELEGRAM_TOKEN, ADMIN_ID and IPC_ADDR are required.");
+    console.log("TELEGRAM_TOKEN and ADMIN_ID are required.");
     return false;
   }
 }
@@ -31,14 +35,16 @@ function service() {
   let bot;
 
   // 判断使用websocket还是polling方式监听
-  if (url !== undefined) {
+  if (url) {
     const express = require("express");
     const bodyParser = require("body-parser");
 
     bot = new TelegramBot(token);
 
     // This informs the Telegram servers of the new webhook.
-    bot.setWebHook(`${url}/bot${token}`);
+    bot.setWebHook(`https://${url}/bot${token}`).catch((err) => {
+      console.log(err);
+    });
 
     const app = express();
 
@@ -52,7 +58,7 @@ function service() {
     });
 
     app.get("/", (req, res) => {
-      res.send("NODE ASF BOT.");
+      res.send("ISZY Tool Bot.");
     });
 
     // Start Express Server
@@ -96,20 +102,46 @@ function service() {
 
   bot.onText(/\/asf/, (msg) => {
     if (Object.keys(users).includes(msg.chat.id.toString())) {
-      if (msg.chat.id == admin) {
-        users[msg.chat.id].tool = "asf";
-        writeUsers(users);
-        bot.sendMessage(msg.chat.id, "已切换到ASF工具", {
-          reply_markup: {
-            keyboard: [
-              ["status", "help"],
-              ["pause", "resume"],
-              ["2fa", "2faok", "2fano"],
-            ],
-          },
-        });
+      if (ipc_addr) {
+        if (msg.chat.id == admin) {
+          users[msg.chat.id].tool = "asf";
+          writeUsers(users);
+          bot.sendMessage(msg.chat.id, "已切换到ASF工具", {
+            reply_markup: {
+              keyboard: [
+                ["status", "help"],
+                ["pause", "resume"],
+                ["2fa", "2faok", "2fano"],
+              ],
+            },
+          });
+        } else {
+          bot.sendMessage(msg.chat.id, "本功能暂不对外开放");
+        }
       } else {
-        bot.sendMessage(msg.chat.id, "本功能暂不对外开放");
+        bot.sendMessage(msg.chat.id, "本功能暂未开启");
+      }
+    } else {
+      bot.sendMessage(msg.chat.id, "请先初始化");
+    }
+  });
+
+  bot.onText(/\/vadmin/, (msg) => {
+    if (Object.keys(users).includes(msg.chat.id.toString())) {
+      if (vadmin_username && vadmin_password) {
+        if (msg.chat.id == admin) {
+          users[msg.chat.id].tool = "vadmin";
+          writeUsers(users);
+          bot.sendMessage(msg.chat.id, "已切换到评论管理工具", {
+            reply_markup: {
+              keyboard: [["获取评论列表"]],
+            },
+          });
+        } else {
+          bot.sendMessage(msg.chat.id, "本功能暂不对外开放");
+        }
+      } else {
+        bot.sendMessage(msg.chat.id, "本功能暂未开启");
       }
     } else {
       bot.sendMessage(msg.chat.id, "请先初始化");
@@ -203,6 +235,13 @@ function service() {
             );
           }
         });
+      } else if (users[msg.chat.id].tool === "vadmin") {
+        switch (msg.text) {
+          case "获取评论列表":
+            break;
+          default:
+            break;
+        }
       } else if (users[msg.chat.id].tool === "hentai") {
         switch (msg.text.split(" ")[0]) {
           case "Hentai!":

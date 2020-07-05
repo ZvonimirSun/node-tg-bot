@@ -77,7 +77,7 @@ module.exports = function (app) {
   bot.onText(/\/start/, (msg) => {
     if (!Object.keys(users).includes(msg.chat.id.toString())) {
       users[msg.chat.id] = {};
-      writeUsers(users);
+      tools.writeUsers(users);
     }
     bot.sendMessage(msg.chat.id, "欢迎!");
   });
@@ -107,7 +107,7 @@ module.exports = function (app) {
       if (ipc_addr) {
         if (msg.chat.id == admin) {
           users[msg.chat.id].tool = "asf";
-          writeUsers(users);
+          tools.writeUsers(users);
           bot.sendMessage(msg.chat.id, "已切换到ASF工具", {
             reply_markup: {
               keyboard: [
@@ -133,7 +133,7 @@ module.exports = function (app) {
       if (vadmin_username && vadmin_password) {
         if (msg.chat.id == admin) {
           users[msg.chat.id].tool = "vadmin";
-          writeUsers(users);
+          tools.writeUsers(users);
           bot.sendMessage(msg.chat.id, "已切换到评论管理工具", {
             reply_markup: {
               keyboard: [["获取评论列表"]],
@@ -158,7 +158,7 @@ module.exports = function (app) {
           tag: "uncensored",
         };
       }
-      writeUsers(users);
+      tools.writeUsers(users);
       bot.sendMessage(msg.chat.id, "已切换到HENTAI工具", {
         reply_markup: {
           keyboard: [["Hentai!"]],

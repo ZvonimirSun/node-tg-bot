@@ -1,10 +1,10 @@
 const express = require("express");
 const app = express();
 
-const token = process.env.TELEGRAM_TOKEN;
 const port = process.env.PORT || 3000;
+const token = process.env.TELEGRAM_TOKEN;
+const admin = process.env.ADMIN_ID;
 
-const init = require("./modules/init");
 const tgbot = require("./modules/tgbot");
 
 // parse the updates to JSON
@@ -14,10 +14,12 @@ app.get("/", (req, res) => {
   res.send("ISZY Tool Bot.");
 });
 
-if (!init()) {
-  process.exit(1);
-} else {
+if (token && admin) {
+  // No need to pass any parameters as we will handle the updates with Express
   tgbot(app);
+} else {
+  console.log("TELEGRAM_TOKEN and ADMIN_ID are required.");
+  process.exit(1);
 }
 
 // Start Express Server

@@ -10,8 +10,8 @@ const url = process.env.URL;
 const ipc_addr = process.env.IPC_ADDR;
 const ipc_pass = process.env.IPC_PASS || "";
 
-const vadmin_username = process.env.VADMIN_USERNAME;
-const vadmin_password = process.env.VADMIN_PASSWORD;
+const username = process.env.USERNAME;
+const password = process.env.PASSWORD;
 
 let users = {};
 
@@ -130,7 +130,7 @@ module.exports = function (app) {
 
   bot.onText(/\/vadmin/, (msg) => {
     if (Object.keys(users).includes(msg.chat.id.toString())) {
-      if (vadmin_username && vadmin_password) {
+      if (username && password) {
         if (msg.chat.id == admin) {
           users[msg.chat.id].tool = "vadmin";
           tools.writeUsers(users);

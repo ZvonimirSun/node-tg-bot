@@ -12,9 +12,11 @@ RUN npm install
 # If you are building your code for production
 # RUN npm install --only=production
 
-HEALTHCHECK --interval=3s --timeout=3s --start-period=3s CMD wget -O - -q http://127.0.0.1:3000 || exit 1
-
 # Bundle app source
 COPY . .
+
+HEALTHCHECK --interval=3s --timeout=3s --start-period=3s CMD wget -O - -q -Y off http://127.0.0.1:3000 || exit 1
+
+EXPOSE 3000
 
 CMD [ "npm", "start" ]
